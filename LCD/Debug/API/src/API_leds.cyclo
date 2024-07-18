@@ -1,0 +1,8 @@
+../API/src/API_leds.c:7:6:ledFSM_init	1
+../API/src/API_leds.c:21:6:ledFSM_update	9
+../API/src/API_leds.c:62:6:ledSetCycleDuration	1
+../API/src/API_leds.c:67:6:ledSetOnDuration	1
+../API/src/API_leds.c:71:6:ledSetOffDuration	1
+../API/src/API_leds.c:75:8:readLed	1
+../API/src/API_leds.c:79:6:ledOn	5
+../API/src/API_leds.c:100:6:ledOff	5
