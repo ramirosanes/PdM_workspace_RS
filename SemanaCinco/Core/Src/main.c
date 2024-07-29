@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "API_uart.h"
+#include "API_utils.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -86,6 +87,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   uartInit();
+  buttonFSM_init();
 
   /* USER CODE BEGIN 2 */
 
@@ -96,7 +98,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  buttonFSM_update();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

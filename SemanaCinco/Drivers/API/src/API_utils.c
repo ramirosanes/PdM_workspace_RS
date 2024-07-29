@@ -11,6 +11,7 @@
  * INCLUDES
  ************************************/
 #include "API_utils.h"
+#include "API_uart.h"
 /************************************
  * EXTERN VARIABLES
  ************************************/
@@ -18,7 +19,17 @@
 /************************************
  * PRIVATE MACROS AND DEFINES
  ************************************/
+#define HIGHFLANK (uint8_t*) ("flanco ascendente detectado")
+#define LOWFLANK  (uint8_t*) ("flanco descendente detectado")
 
+#define DEBOUNCE 100
+
+#define NO_DURATION 0
+#define NOT_RUNNING false
+#define NOT_PRESSED false
+
+#define PRESSED 	true
+#define RUNNING		true
 /************************************
  * PRIVATE TYPEDEFS
  ************************************/
@@ -26,7 +37,7 @@
 /************************************
  * STATIC VARIABLES
  ************************************/
-
+static button_t userButton;
 /************************************
  * GLOBAL VARIABLES
  ************************************/
@@ -38,10 +49,117 @@
 /************************************
  * STATIC FUNCTIONS
  ************************************/
+void buttonFSM_init ()
+{
+	userButton.State = BUTTON_UP;
+	userButton.isPressed = NOT_PRESSED;
+	delayInit(&userButton.debounceDelay);
+	delayWrite(&userButton.debounceDelay, DEBOUNCE);
+}
 
+static void delayRead (delay_t* delay)
+{
+	delay->elapsedTime = HAL_GetTick() - delay->startTime;
+	delay->running = (delay->elapsedTime >= delay->duration);
+}
 /************************************
- * GLOBAL FUNCTIONS
+ * BUTTON GLOBAL FUNCTIONS
  ************************************/
+void buttonFSM_update()
+{
+	switch (userButton.State)
+	{
+
+	case BUTTON_UP:
+
+		userButton.isPressed = NOT_PRESSED;
+		if (HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin))
+		{
+			userButton.State = BUTTON_FALLING;
+			delayStart(&userButton.debounceDelay);
+		}
+		break;
+
+	case BUTTON_DOWN:
+
+		userButton.isPressed = PRESSED;
+		if (!HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin))
+		{
+			userButton.State = BUTTON_RISING;
+			delayStart(&userButton.debounceDelay);
+		}
+		break;
+
+	case BUTTON_FALLING:
+		uartSendString(LOWFLANK);
+		if (!delayIsRunning(&userButton.debounceDelay))
+		{
+			if (HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin))
+			{
+				userButton.State = BUTTON_DOWN;
+				break;
+			} else
+			{
+				userButton.State = BUTTON_UP;
+				break;
+			}
+		}
+		break;
+
+	case BUTTON_RISING:
+		uartSendString(HIGHFLANK);
+		if (!delayIsRunning(&userButton.debounceDelay))
+		{
+			if (!HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin))
+			{
+				userButton.State = BUTTON_UP;
+				break;
+			} else
+			{
+				userButton.State = BUTTON_DOWN;
+				break;
+			}
+		}
+		break;
+	default:
+		Error_Handler();
+	}
+}
+
+bool_t readUserButton()
+{
+	return userButton.isPressed;
+}
+/************************************
+ * DELAY GLOBAL FUNCTIONS
+ ************************************/
+void delayInit (delay_t* delay)
+{
+	delay->duration = NO_DURATION;
+	delay->startTime = HAL_GetTick();
+	delay->elapsedTime = NO_DURATION;
+	delay->running = NOT_RUNNING;
+}
+
+void delayStart (delay_t* delay)
+{
+	if (!(delay->running))
+	{
+		delay->startTime = HAL_GetTick();
+		delay->running = RUNNING;
+	}
+}
+
+void delayWrite (delay_t* delay, tick_t duration)
+{
+	delay->duration = duration;
+}
+
+bool_t delayIsRunning (delay_t* delay)
+{
+	delayRead(delay);
+	return delay->running;
+}
 /**
   * @brief GPIO Initialization Function
   * @param None
