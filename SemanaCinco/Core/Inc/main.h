@@ -27,14 +27,12 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdbool.h>
-#include <stdint.h>
-
 #include "stm32f4xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -49,7 +47,28 @@ typedef bool bool_t;
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
+/*
+*---------------------------------------
+*   SysTick Timer Delay Macros
+*---------------------------------------
+*/
 
+#define SYSTICK_LOAD (SystemCoreClock/1000000U)
+#define SYSTICK_DELAY_CALIB (SYSTICK_LOAD >> 1)
+
+#define DELAY_US(us) \
+    do { \
+         uint32_t start = SysTick->VAL; \
+         uint32_t ticks = (us * SYSTICK_LOAD)-SYSTICK_DELAY_CALIB;  \
+         while((start - SysTick->VAL) < ticks); \
+    } while (0)
+
+#define DELAY_MS(ms) \
+    do { \
+        for (uint32_t i = 0; i < ms; ++i) { \
+            DELAY_US(1000); \
+        } \
+    } while (0)
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
@@ -106,8 +125,12 @@ void Error_Handler(void);
 #define RMII_TX_EN_GPIO_Port GPIOG
 #define RMII_TXD0_Pin GPIO_PIN_13
 #define RMII_TXD0_GPIO_Port GPIOG
+#define LCD_SCL_Pin GPIO_PIN_6
+#define LCD_SCL_GPIO_Port GPIOB
 #define LED2_Pin GPIO_PIN_7
 #define LED2_GPIO_Port GPIOB
+#define LCD_SDA_Pin GPIO_PIN_9
+#define LCD_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

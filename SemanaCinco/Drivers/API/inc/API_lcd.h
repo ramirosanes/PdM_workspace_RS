@@ -1,14 +1,14 @@
 /**
  ********************************************************************************
- * @file    API_uart.h
+ * @file    API_lcd.h
  * @author  rami
- * @date    Jul 25, 2024
+ * @date    Jul 29, 2024
  * @brief   
  ********************************************************************************
  */
 
-#ifndef API_INC_API_UART_H_
-#define API_INC_API_UART_H_
+#ifndef API_INC_API_LCD_H_
+#define API_INC_API_LCD_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,17 +21,7 @@ extern "C" {
 /************************************
  * MACROS AND DEFINES
  ************************************/
-#define BAUDRATE 115200
-#define UART_CONFIG_STRING ((uint8_t*) \
-		"UART Initialized:\r\n" \
-		"Instance = USART3\r\n" \
-		"BaudRate = 115200\r\n" \
-		"WordLength = UART_WORDLENGTH_8B\r\n" \
-		"StopBits = UART_STOPBITS_1\r\n" \
-		"Parity = UART_PARITY_NONE\r\n" \
-		"Mode = UART_MODE_TX_RX\r\n" \
-		"HwFlowCtl = UART_HWCONTROL_NONE\r\n" \
-		"OverSampling = UART_OVERSAMPLING_16\r\n")
+
 /************************************
  * TYPEDEFS
  ************************************/
@@ -43,10 +33,19 @@ extern "C" {
 /************************************
  * GLOBAL FUNCTION PROTOTYPES
  ************************************/
-bool_t uartInit ();
-bool_t uartDeInit ();
-void uartSendString (uint8_t* pstring);
-void uartSendStringSize (uint8_t* pstring, uint16_t size);
+void lcdInit ();
+void lcdClear ();
+void lcdHome ();
+void lcdSetCursor (uint8_t row, uint8_t col);
+void lcdSendChar (uint8_t c);
+void lcdSendString (uint8_t* str);
+void lcdDisplayOn ();
+void lcdDisplayOff ();
+void lcdCursorOn ();
+void lcdCursorOff ();
+void lcdBlinkOn ();
+void lcdBlinkOff ();
+
 #ifdef __cplusplus
 }
 #endif

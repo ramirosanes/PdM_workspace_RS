@@ -5,14 +5,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Drivers/API/src/API_lcd.c \
 ../Drivers/API/src/API_uart.c \
 ../Drivers/API/src/API_utils.c 
 
 OBJS += \
+./Drivers/API/src/API_lcd.o \
 ./Drivers/API/src/API_uart.o \
 ./Drivers/API/src/API_utils.o 
 
 C_DEPS += \
+./Drivers/API/src/API_lcd.d \
 ./Drivers/API/src/API_uart.d \
 ./Drivers/API/src/API_utils.d 
 
@@ -24,7 +27,7 @@ Drivers/API/src/%.o Drivers/API/src/%.su Drivers/API/src/%.cyclo: ../Drivers/API
 clean: clean-Drivers-2f-API-2f-src
 
 clean-Drivers-2f-API-2f-src:
-	-$(RM) ./Drivers/API/src/API_uart.cyclo ./Drivers/API/src/API_uart.d ./Drivers/API/src/API_uart.o ./Drivers/API/src/API_uart.su ./Drivers/API/src/API_utils.cyclo ./Drivers/API/src/API_utils.d ./Drivers/API/src/API_utils.o ./Drivers/API/src/API_utils.su
+	-$(RM) ./Drivers/API/src/API_lcd.cyclo ./Drivers/API/src/API_lcd.d ./Drivers/API/src/API_lcd.o ./Drivers/API/src/API_lcd.su ./Drivers/API/src/API_uart.cyclo ./Drivers/API/src/API_uart.d ./Drivers/API/src/API_uart.o ./Drivers/API/src/API_uart.su ./Drivers/API/src/API_utils.cyclo ./Drivers/API/src/API_utils.d ./Drivers/API/src/API_utils.o ./Drivers/API/src/API_utils.su
 
 .PHONY: clean-Drivers-2f-API-2f-src
 

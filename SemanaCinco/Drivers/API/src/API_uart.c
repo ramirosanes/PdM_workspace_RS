@@ -18,7 +18,6 @@
 /************************************
  * PRIVATE MACROS AND DEFINES
  ************************************/
-
 /************************************
  * PRIVATE TYPEDEFS
  ************************************/
@@ -62,6 +61,12 @@ bool_t uartInit ()
 {
 	MX_USART3_UART_Init();
 	uartSendString(UART_CONFIG_STRING);
+	return true;
+}
+
+bool_t uartDeInit ()
+{
+	HAL_UART_MspDeInit(&huart3);
 	return true;
 }
 

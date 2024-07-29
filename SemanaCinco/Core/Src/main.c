@@ -18,11 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "API_uart.h"
-#include "API_utils.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "API_utils.h"
+#include "API_uart.h"
+#include "API_lcd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -75,7 +75,8 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  uartInit();
+  lcdInit();
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -86,11 +87,9 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  uartInit();
-  buttonFSM_init();
 
   /* USER CODE BEGIN 2 */
-
+  buttonFSM_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -98,8 +97,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  buttonFSM_update();
+
     /* USER CODE BEGIN 3 */
+	  buttonFSM_update();
   }
   /* USER CODE END 3 */
 }

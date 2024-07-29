@@ -12,6 +12,7 @@
  ************************************/
 #include "API_utils.h"
 #include "API_uart.h"
+#include "API_lcd.h"
 /************************************
  * EXTERN VARIABLES
  ************************************/
@@ -91,11 +92,13 @@ void buttonFSM_update()
 		break;
 
 	case BUTTON_FALLING:
-		uartSendString(LOWFLANK);
+
 		if (!delayIsRunning(&userButton.debounceDelay))
 		{
 			if (HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin))
 			{
+				uartSendString(LOWFLANK);
+				lcdSendString(LOWFLANK);
 				userButton.State = BUTTON_DOWN;
 				break;
 			} else
@@ -107,11 +110,13 @@ void buttonFSM_update()
 		break;
 
 	case BUTTON_RISING:
-		uartSendString(HIGHFLANK);
+
 		if (!delayIsRunning(&userButton.debounceDelay))
 		{
 			if (!HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin))
 			{
+				uartSendString(HIGHFLANK);
+				lcdSendString(HIGHFLANK);
 				userButton.State = BUTTON_UP;
 				break;
 			} else
