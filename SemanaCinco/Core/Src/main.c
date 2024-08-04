@@ -37,13 +37,11 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,7 +53,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+extern uint8_t displayBuffer;
 /* USER CODE END 0 */
 
 /**
@@ -75,8 +73,6 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  uartInit();
-  lcdInit();
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -89,7 +85,9 @@ int main(void)
   /* Initialize all configured peripherals */
 
   /* USER CODE BEGIN 2 */
-  buttonFSM_init();
+  uartInit();
+  buttonInit();
+  lcdInit();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -99,7 +97,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  buttonFSM_update();
+	  buttonFSM();
+	  uartFSM();
+	  displayFSM();
   }
   /* USER CODE END 3 */
 }

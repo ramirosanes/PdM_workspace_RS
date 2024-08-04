@@ -21,17 +21,9 @@ extern "C" {
 /************************************
  * MACROS AND DEFINES
  ************************************/
-#define BAUDRATE 115200
+#define BAUDRATE 9600
 #define UART_CONFIG_STRING ((uint8_t*) \
-		"UART Initialized:\r\n" \
-		"Instance = USART3\r\n" \
-		"BaudRate = 115200\r\n" \
-		"WordLength = UART_WORDLENGTH_8B\r\n" \
-		"StopBits = UART_STOPBITS_1\r\n" \
-		"Parity = UART_PARITY_NONE\r\n" \
-		"Mode = UART_MODE_TX_RX\r\n" \
-		"HwFlowCtl = UART_HWCONTROL_NONE\r\n" \
-		"OverSampling = UART_OVERSAMPLING_16\r\n")
+		"UART Initialized:11500 8B NP 1SP\r\n")
 /************************************
  * TYPEDEFS
  ************************************/
@@ -43,6 +35,8 @@ extern "C" {
 /************************************
  * GLOBAL FUNCTION PROTOTYPES
  ************************************/
+void uartFSM();
+
 bool_t uartInit ();
 bool_t uartDeInit ();
 void uartSendString (uint8_t* pstring);

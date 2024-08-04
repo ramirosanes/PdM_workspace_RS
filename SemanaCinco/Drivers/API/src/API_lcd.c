@@ -20,6 +20,8 @@
  ************************************/
 //MISC
 #define TX_TIMEOUT 100
+#define LCD_CHARS 80
+#define LINEMAXCHARS 20
 
 #define SHIFT_NIBBLE_UP(x) (uint8_t) (x<<4)
 #define HIGH_NIBBLE 0b11110000
@@ -28,12 +30,22 @@
 #define CLOCKSPEED 100000
 #define OWN_ADDRESS 0
 
-//LCD INFO
-#define LCD_ADDRESS 0x27
-#define COLS 16
-#define ROWS 4
-
 /*-----------------------[COMMAND MACROS]-----------------------*/
+//Cmd Bits
+#define CLEARDISPLAY	(1<<0)
+#define RETURNHOME		(1<<1)
+#define ENTRYMODESET	(1<<2)
+#define DISPLAYCONTROL	(1<<3)
+#define CURSORDISPLAYSHIFT	(1<<4)
+#define FUNCTIONSET			(1<<5)
+#define SETCGRAM			(1<<6)
+#define SETDDRAM			(1<<7)
+//Ctrl Bits
+#define RS_BIT				(1<<0)
+#define RW_BIT				(1<<1)
+#define EN_BIT				(1<<2)
+#define BL_BIT				(1<<3)
+
 #define LCD_COMMAND_MODE		0x00
 #define LCD_DATA_MODE			0x01
 
@@ -80,14 +92,7 @@
 /************************************
  * PRIVATE TYPEDEFS
  ************************************/
-typedef struct
-{
-	I2C_HandleTypeDef* lcdHandle;
-	uint8_t lcdAddress;
-	uint8_t lcdCols;
-	uint8_t lcdRows;
-}
-lcd_t;
+
 /************************************
  * STATIC VARIABLES
  ************************************/
@@ -100,6 +105,8 @@ static const lcd_t lcdUser =
 		.lcdCols = COLS,
 		.lcdRows = ROWS,
 };
+
+uint8_t displayBuffer[LCD_CHARS] = {0x69};
 /************************************
  * GLOBAL VARIABLES
  ************************************/
@@ -125,10 +132,10 @@ static void lcdExpanderWrite(uint8_t data)
 static void lcdEnToggle (uint8_t data)
 {
 	lcdExpanderWrite(data | EN);
-	HAL_Delay(1); //Explicar mejor esto
+	HAL_Delay(1);
 
-	lcdExpanderWrite(data | ~EN);
-	HAL_Delay(1); //Explicar mejor esto
+	lcdExpanderWrite(data); //Se manda un byte mas "al pedo" pero necesario
+	HAL_Delay(1);
 }
 static void lcdWrite4Bits (uint8_t data)
 {
@@ -184,9 +191,84 @@ static void MX_I2C1_Init(void)
 /************************************
  * GLOBAL FUNCTIONS
  ************************************/
+typedef enum
+{
+	DISPLAY,
+	CONFIG,
+}
+display_t;
+
+display_t displayState = DISPLAY;
+
+void displayInit ()
+{
+	for (uint8_t i = 0; i < LCD_CHARS; i++)
+	{
+		displayBuffer[i] = ' ';
+	}
+}
+
+static void writeLineDisplay (uint8_t* string, uint8_t row, uint8_t offset)
+{
+	uint8_t len = 0;
+	uint8_t displayIndex;
+
+	if ((row > 3) | (string == NULL) | (offset > LINEMAXCHARS))
+	{
+		Error_Handler();
+	}
+
+	displayIndex = row*LINEMAXCHARS + offset;
+	while (*string != '\0' && (len+offset)<LINEMAXCHARS)
+	{
+		displayBuffer[displayIndex++] = *string;
+		len++;
+		string++;
+	}
+}
+
+void lcdShowHighFlanks ()
+{
+	writeLineDisplay((uint8_t*)"FA: 5", 0, 0);
+}
+void lcdShowLowFlanks ()
+{
+	writeLineDisplay((uint8_t*)"FB: 3", 1, 0);
+}
+
+void lcdShowDate()
+{
+	writeLineDisplay((uint8_t*)"69", 2, 0);
+}
+
+void lcdShowTime()
+{
+	writeLineDisplay((uint8_t*)"mcdonal", 3, 0);
+}
+
+void displayFSM()
+{
+	switch (displayState)
+	{
+	case DISPLAY:
+		lcdShowHighFlanks();
+		lcdShowLowFlanks();
+		lcdShowDate();
+		lcdShowTime();
+		lcdSetCursor(0, 0);
+		lcdPrintString(displayBuffer);
+		break;
+	case CONFIG:
+		break;
+	default:
+		break;
+	}
+}
+
 void lcdInit ()
 {
 	MX_I2C1_Init();
+	displayInit();
 	lcdCmd(0x30);
 	HAL_Delay(5);
 	lcdCmd(0x30);
@@ -220,11 +302,11 @@ void lcdSetCursor (uint8_t row, uint8_t col)
 	}
 	lcdCmd(LCD_SETDDRAMADDR | (col + rowOffsets[row]));
 }
-void lcdSendChar (uint8_t c)
+void lcdPrintChar (uint8_t c)
 {
 	lcdData(c);
 }
-void lcdSendString (uint8_t* str)
+void lcdPrintString (uint8_t* str)
 {
 	while (*str != '\0')
 	{

@@ -9,11 +9,8 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include utils/src/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
--include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
--include API/src/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -36,34 +33,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := LCD
+BUILD_ARTIFACT_NAME := GeneradorMx
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-LCD.elf \
+GeneradorMx.elf \
 
 MAP_FILES += \
-LCD.map \
+GeneradorMx.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-LCD.list \
+GeneradorMx.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: LCD.elf secondary-outputs
+main-build: GeneradorMx.elf secondary-outputs
 
 # Tool invocations
-LCD.elf LCD.map: $(OBJS) $(USER_OBJS) /home/rami/STM32Cube/PdM_workspace_RS/LCD/STM32F429ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "LCD.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/rami/STM32Cube/PdM_workspace_RS/LCD/STM32F429ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LCD.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+GeneradorMx.elf GeneradorMx.map: $(OBJS) $(USER_OBJS) /home/rami/STM32Cube/PdM_workspace_RS/GeneradorMx/STM32F429ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "GeneradorMx.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/rami/STM32Cube/PdM_workspace_RS/GeneradorMx/STM32F429ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="GeneradorMx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -72,14 +69,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-LCD.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "LCD.list"
+GeneradorMx.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "GeneradorMx.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) LCD.elf LCD.list LCD.map default.size.stdout
+	-$(RM) GeneradorMx.elf GeneradorMx.list GeneradorMx.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

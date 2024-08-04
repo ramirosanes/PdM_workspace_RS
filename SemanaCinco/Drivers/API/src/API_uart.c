@@ -57,6 +57,11 @@ static void MX_USART3_UART_Init(void)
 /************************************
  * GLOBAL FUNCTIONS
  ************************************/
+void uartFSM()
+{
+
+}
+
 bool_t uartInit ()
 {
 	MX_USART3_UART_Init();
@@ -97,7 +102,7 @@ void uartSendStringSize (uint8_t* pstring, uint16_t size)
 {
 	HAL_StatusTypeDef uartStatus;
 
-	if (size == 0 | pstring == NULL)
+	if ( (size == 0) | (pstring == NULL) )
 	{
 		Error_Handler();
 	}

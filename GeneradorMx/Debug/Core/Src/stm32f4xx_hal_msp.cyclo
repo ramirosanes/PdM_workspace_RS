@@ -1,6 +1,1 @@
-../Core/Src/stm32f4xx_hal_msp.c:6:6:MX_I2C1_Init	4
-../Core/Src/stm32f4xx_hal_msp.c:36:6:HAL_I2C_MspInit	2
-../Core/Src/stm32f4xx_hal_msp.c:61:6:HAL_I2C_MspDeInit	2
-../Core/Src/stm32f4xx_hal_msp.c:103:6:MX_GPIO_Init	1
-../Core/Src/stm32f4xx_hal_msp.c:204:6:HAL_MspInit	1
-../Core/Src/stm32f4xx_hal_msp.c:213:6:HAL_MspDeInit	1
+../Core/Src/stm32f4xx_hal_msp.c:63:6:HAL_MspInit	1
