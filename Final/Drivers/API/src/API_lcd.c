@@ -83,42 +83,46 @@ I2C_HandleTypeDef hi2c1;
 /************************************
  * STATIC FUNCTIONS
  ************************************/
-static void lcdExpanderWrite(uint8_t data)
+static void lcdSendCommand (uint8_t cmd)
 {
-	uint8_t txData = (data) | BL_BIT;
-	if (HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData, sizeof(txData), HAL_MAX_DELAY)!= HAL_OK){
+	uint8_t highNibble, lowNibble;
+	uint8_t txData[4];
+
+	highNibble = (cmd & 0xF0) | BL_BIT;
+	lowNibble = ((cmd<<4) & 0xF0) | BL_BIT;
+
+	txData[0] = highNibble | EN_BIT;
+	txData[1] = highNibble;
+	txData[2] = lowNibble | EN_BIT;
+	txData[3] = lowNibble;
+
+	if (HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), txData, 4, HAL_MAX_DELAY) != HAL_OK)
+	{
 		uartSendString((uint8_t*)"tx de lcd broken");
 	}
+	HAL_Delay(5);
 }
-static void lcdEnToggle (uint8_t data)
-{
-	lcdExpanderWrite( (data) | EN_BIT);
-	HAL_Delay(1);
 
-	lcdExpanderWrite(data);
-	HAL_Delay(1);
-}
-static void lcdWrite4Bits (uint8_t data)
+static void lcdSendData (uint8_t data)
 {
-	lcdExpanderWrite(data);
-	lcdEnToggle(data);
+	uint8_t highNibble, lowNibble;
+	uint8_t txData[4];
+
+	highNibble = (data & 0xF0) | BL_BIT | RS_BIT;
+	lowNibble = ((data<<4) & 0xF0) | BL_BIT | RS_BIT;
+
+	txData[0] = lowNibble  | EN_BIT;
+	txData[1] = lowNibble;
+	txData[2] = highNibble | EN_BIT;
+	txData[3] = highNibble;
+
+	if (HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), txData, 4, HAL_MAX_DELAY) != HAL_OK)
+	{
+		uartSendString((uint8_t*)"tx de lcd broken");
+	}
+	HAL_Delay(5);
 }
-static void lcdSend (uint8_t data, uint8_t mode)
-{
-	uint8_t highNibble = data & HIGH_NIBBLE;
-	uint8_t lowNibble = data & LOW_NIBBLE;
-	lcdWrite4Bits((highNibble) | (mode));
-	lcdWrite4Bits((SHIFT_NIBBLE_UP(lowNibble)) | mode);
-}
-static void lcdCmd (uint8_t cmd)
-{
-	lcdSend(cmd, COMMAND_MODE);
-}
-static void lcdData (uint8_t data)
-{
-	lcdSend(data, DATA_MODE);
-}
-//HAL
+
 static void MX_I2C1_Init(void)
 {
   hi2c1.Instance = I2C1;
@@ -155,73 +159,76 @@ void lcdInit ()
 	MX_I2C1_Init();
 	HAL_Delay(100);
 
-	lcdCmd(0x30);
+	lcdSendCommand(0x30);
 	HAL_Delay(5);
 
-	lcdCmd(0x30);
+	lcdSendCommand(0x30);
+	HAL_Delay(5);
+
+	lcdSendCommand(0x30);
+	HAL_Delay(5);
+
+	lcdSendCommand(0x20);
 	HAL_Delay(1);
 
-	lcdCmd(0x30);
+	lcdSendCommand(FUNCTIONSET | MODE_4BITMODE| LINES_2LINE | FONT_5x8DOTS);
 	HAL_Delay(1);
 
-	lcdCmd(0x20);
+	lcdSendCommand(DISPLAYCONTROL | DISPLAYOFF | CURSOROFF | BLINKOFF);
 	HAL_Delay(1);
 
-	lcdCmd(FUNCTIONSET | MODE_4BITMODE| LINES_2LINE | FONT_5x8DOTS);
+	lcdSendCommand(ENTRYMODESET | ENTRYLEFT | SHIFTINCREMENT);
 	HAL_Delay(1);
 
-	lcdCmd(DISPLAYCONTROL | DISPLAYOFF | CURSOROFF | BLINKOFF);
-	HAL_Delay(1);
-
-	lcdCmd(0x01);
-	HAL_Delay(1);
-
-	lcdCmd(ENTRYMODESET | ENTRYLEFT | SHIFTINCREMENT);
-	HAL_Delay(1);
-
-	lcdHome();
-	lcdPrintString("la concha de tu madre");
-
+	lcdClear();
+	lcdDisplayOn();
 }
 void lcdClear ()
 {
-	lcdCmd(CLEARDISPLAY);
-	HAL_Delay(2);
+	lcdSendCommand(CLEARDISPLAY);
+	HAL_Delay(5);
 }
 void lcdHome ()
 {
-	lcdCmd(RETURNHOME);
-	HAL_Delay(2);
+	lcdSendCommand(RETURNHOME);
+	HAL_Delay(5);
 }
 void lcdSetCursor (uint8_t row, uint8_t col)
 {
 	uint8_t rowOffsets[] = {0x00, 0x40, 0x14, 0x54};
 	row = row % ROWS;
-	lcdCmd(SETDDRAM | (col + rowOffsets[row]));
+	lcdSendCommand(SETDDRAM | (col + rowOffsets[row]));
+	HAL_Delay(5);
 }
 void lcdDisplayOn ()
 {
-	lcdCmd(DISPLAYCONTROL | DISPLAYON);
+	lcdSendCommand(DISPLAYCONTROL | DISPLAYON);
+	HAL_Delay(5);
 }
 void lcdDisplayOff ()
 {
-	lcdCmd(DISPLAYCONTROL | DISPLAYOFF);
+	lcdSendCommand(DISPLAYCONTROL | DISPLAYOFF);
+	HAL_Delay(5);
 }
 void lcdCursorOn ()
 {
-	lcdCmd(DISPLAYCONTROL | CURSORON);
+	lcdSendCommand(DISPLAYCONTROL | CURSORON);
+	HAL_Delay(5);
 }
 void lcdCursorOff ()
 {
-	lcdCmd(DISPLAYCONTROL | CURSOROFF);
+	lcdSendCommand(DISPLAYCONTROL | CURSOROFF);
+	HAL_Delay(5);
 }
 void lcdBlinkOn ()
 {
-	lcdCmd(DISPLAYCONTROL | BLINKON);
+	lcdSendCommand(DISPLAYCONTROL | BLINKON);
+	HAL_Delay(5);
 }
 void lcdBlinkOff ()
 {
-	lcdCmd(DISPLAYCONTROL | BLINKOFF);
+	lcdSendCommand(DISPLAYCONTROL | BLINKOFF);
+	HAL_Delay(5);
 }
 void lcdPrintInt(int16_t num)
 {
@@ -258,13 +265,13 @@ void lcdPrintInt(int16_t num)
 }
 void lcdPrintChar (uint8_t c)
 {
-	lcdData(c);
+	lcdSendData(c);
 }
 void lcdPrintString (uint8_t* str)
 {
 	while (*str != '\0')
 	{
-		lcdData(*str++);
+		lcdSendData(*str++);
 	}
 }
 void lcdPrintf(const uint8_t* format, uint8_t c, int16_t num, const uint8_t* str)

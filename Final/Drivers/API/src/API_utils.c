@@ -187,6 +187,7 @@ void buttonFSM()
 		{
 			userButton.State = BUTTON_RISING;
 			delayStart(&userButton.debounceDelay);
+			lcdPrintString("holi");
 		}
 		break;
 

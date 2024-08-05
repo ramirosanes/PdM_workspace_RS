@@ -11,7 +11,6 @@
  * INCLUDES
  ************************************/
 #include "APP_display.h"
-#include <string.h>
 /************************************
  * EXTERN VARIABLES
  ************************************/
@@ -51,7 +50,6 @@ static void updateData()
 
 void displayFSMInit()
 {
-	lcdPrintString("Bienvenido");
 	currentData.currentState = DISPLAY_DATA;
 	currentData.currentDateTime.dayOfMonth = 16;
 	currentData.currentDateTime.month = 11;
@@ -59,13 +57,6 @@ void displayFSMInit()
 	currentData.highFlanksCount = 0;
 	currentData.lowFlanksCount = 0;
 	DELAY_MS(1000);
-	strcpy(displayBuffer[0], "%d of %s of %d");
-	strcpy(displayBuffer[1], "%d:%d:%d");
-	strcpy(displayBuffer[2], "low flank count: %d");
-	strcpy(displayBuffer[3], "hi flank count: %d");
-
-
-
 }
 void displayFSM()
 {
@@ -76,8 +67,8 @@ void displayFSM()
 	{
 	case DISPLAY_DATA:
 		static uint8_t i=0;
-		lcdSetCursor(i%ROWS, 0);
-		lcdPrintfCenteredString(displayBuffer[i], ' ', n, s);
+		//lcdSetCursor(i%ROWS, 0);
+		//lcdPrintfCenteredString(displayBuffer[i], ' ', n, s);
 		i++;
 		break;
 	case DISPLAY_CONFIG:
