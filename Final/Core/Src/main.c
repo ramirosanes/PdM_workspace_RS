@@ -93,11 +93,7 @@ int main(void)
   uartInit();
   buttonInit();
   lcdInit();
-  lcdPrintString(" !@ABCD`abcd");
-  lcdSetCursor(0, 0);
-  lcdPrintInt(69);
-  lcdSetCursor(1, 2);
-  lcdPrintfCenteredString("hola %d ", ' ', 420, " ");
+  lcdPrintString("Bienvenidohola como estas? eee ee ajaja");
   rtcInit();
   displayFSMInit();
   /* USER CODE END 2 */

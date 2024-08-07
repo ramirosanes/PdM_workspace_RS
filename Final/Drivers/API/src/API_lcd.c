@@ -96,9 +96,12 @@ static void lcdSendCommand (uint8_t cmd)
 	txData[2] = lowNibble | EN_BIT;
 	txData[3] = lowNibble;
 
-	if (HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), txData, 4, HAL_MAX_DELAY) != HAL_OK)
+	for (uint8_t i = 0; i<sizeof(txData); i++)
 	{
-		uartSendString((uint8_t*)"tx de lcd broken");
+		if ((HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (txData+i), 1, HAL_MAX_DELAY)) != HAL_OK)
+		{
+			uartSendString((uint8_t)"tx de lcd broken");
+		}
 	}
 	HAL_Delay(5);
 }
@@ -111,14 +114,17 @@ static void lcdSendData (uint8_t data)
 	highNibble = (data & 0xF0) | BL_BIT | RS_BIT;
 	lowNibble = ((data<<4) & 0xF0) | BL_BIT | RS_BIT;
 
-	txData[0] = lowNibble  | EN_BIT;
-	txData[1] = lowNibble;
-	txData[2] = highNibble | EN_BIT;
-	txData[3] = highNibble;
+	txData[0] = highNibble | EN_BIT;
+	txData[1] = highNibble;
+	txData[2] = lowNibble | EN_BIT;
+	txData[3] = lowNibble;
 
-	if (HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), txData, 4, HAL_MAX_DELAY) != HAL_OK)
+	for (uint8_t i = 0; i<sizeof(txData); i++)
 	{
-		uartSendString((uint8_t*)"tx de lcd broken");
+		if ((HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (txData+i), 1, HAL_MAX_DELAY)) != HAL_OK)
+		{
+			uartSendString((uint8_t)"tx de lcd broken");
+		}
 	}
 	HAL_Delay(5);
 }
@@ -159,16 +165,33 @@ void lcdInit ()
 	MX_I2C1_Init();
 	HAL_Delay(100);
 
-	lcdSendCommand(0x30);
-	HAL_Delay(5);
+	uint8_t txData[2];
 
-	lcdSendCommand(0x30);
-	HAL_Delay(5);
+	txData[0] = 0x30 | EN_BIT;
+	txData[1] = 0x30;
 
-	lcdSendCommand(0x30);
-	HAL_Delay(5);
 
-	lcdSendCommand(0x20);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[0], 1, HAL_MAX_DELAY);
+	HAL_Delay(1);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[1], 1, HAL_MAX_DELAY);
+	HAL_Delay(20);
+
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[0], 1, HAL_MAX_DELAY);
+	HAL_Delay(1);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[1], 1, HAL_MAX_DELAY);
+	HAL_Delay(10);
+
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[0], 1, HAL_MAX_DELAY);
+	HAL_Delay(1);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[1], 1, HAL_MAX_DELAY);
+	HAL_Delay(1);
+
+	txData[0] = 0x20 | EN_BIT;
+	txData[1] = 0x20;
+
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[0], 1, HAL_MAX_DELAY);
+	HAL_Delay(1);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[1], 1, HAL_MAX_DELAY);
 	HAL_Delay(1);
 
 	lcdSendCommand(FUNCTIONSET | MODE_4BITMODE| LINES_2LINE | FONT_5x8DOTS);
@@ -177,11 +200,11 @@ void lcdInit ()
 	lcdSendCommand(DISPLAYCONTROL | DISPLAYOFF | CURSOROFF | BLINKOFF);
 	HAL_Delay(1);
 
-	lcdSendCommand(ENTRYMODESET | ENTRYLEFT | SHIFTINCREMENT);
+	lcdSendCommand(ENTRYMODESET | ENTRYLEFT | SHIFTDECREMENT);
 	HAL_Delay(1);
 
 	lcdClear();
-	lcdDisplayOn();
+	lcdHome();
 }
 void lcdClear ()
 {
