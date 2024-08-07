@@ -93,7 +93,7 @@ int main(void)
   uartInit();
   buttonInit();
   lcdInit();
-  lcdPrintString("Bienvenidohola como estas? eee ee ajaja");
+  lcdPrintString("gracias isi");
   rtcInit();
   displayFSMInit();
   /* USER CODE END 2 */
