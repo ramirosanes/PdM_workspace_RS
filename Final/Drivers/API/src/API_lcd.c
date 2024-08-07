@@ -19,10 +19,6 @@
 /************************************
  * PRIVATE MACROS AND DEFINES
  ************************************/
-#define SHIFT_NIBBLE_UP(x) (uint8_t) (x<<4)
-#define HIGH_NIBBLE 0xf0
-#define LOW_NIBBLE  0x0f
-
 //Ctrl Bits
 #define RS_BIT				(1<<0)
 #define RW_BIT				(1<<1)
@@ -165,44 +161,35 @@ void lcdInit ()
 	MX_I2C1_Init();
 	HAL_Delay(100);
 
-	uint8_t txData[2];
-
-	txData[0] = 0x30 | EN_BIT;
-	txData[1] = 0x30;
-
-
-	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[0], 1, HAL_MAX_DELAY);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (uint8_t[]){(0x30) | EN_BIT | BL_BIT}, 1, HAL_MAX_DELAY);
 	HAL_Delay(1);
-	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[1], 1, HAL_MAX_DELAY);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (uint8_t[]){0x30}, 1, HAL_MAX_DELAY);
 	HAL_Delay(20);
 
-	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[0], 1, HAL_MAX_DELAY);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (uint8_t[]){(0x30) | EN_BIT | BL_BIT}, 1, HAL_MAX_DELAY);
 	HAL_Delay(1);
-	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[1], 1, HAL_MAX_DELAY);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (uint8_t[]){0x30}, 1, HAL_MAX_DELAY);
 	HAL_Delay(10);
 
-	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[0], 1, HAL_MAX_DELAY);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (uint8_t[]){(0x30) | EN_BIT | BL_BIT}, 1, HAL_MAX_DELAY);
 	HAL_Delay(1);
-	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[1], 1, HAL_MAX_DELAY);
-	HAL_Delay(1);
-
-	txData[0] = 0x20 | EN_BIT;
-	txData[1] = 0x20;
-
-	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[0], 1, HAL_MAX_DELAY);
-	HAL_Delay(1);
-	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), &txData[1], 1, HAL_MAX_DELAY);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (uint8_t[]){0x30}, 1, HAL_MAX_DELAY);
 	HAL_Delay(1);
 
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (uint8_t[]){(0x20) | EN_BIT | BL_BIT}, 1, HAL_MAX_DELAY);
+	HAL_Delay(1);
+	HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (uint8_t[]){0x20}, 1, HAL_MAX_DELAY);
+	HAL_Delay(1);
+
+	//End of hardcoded 8bit to 4Bit initialization, now ill start wrapping commands
 	lcdSendCommand(FUNCTIONSET | MODE_4BITMODE| LINES_2LINE | FONT_5x8DOTS);
 	HAL_Delay(1);
-
-	lcdSendCommand(DISPLAYCONTROL | DISPLAYOFF | CURSOROFF | BLINKOFF);
+	lcdSendCommand(DISPLAYCONTROL);
 	HAL_Delay(1);
 
+	lcdSendCommand(RETURNHOME);
 	lcdSendCommand(ENTRYMODESET | ENTRYLEFT | SHIFTDECREMENT);
-	HAL_Delay(1);
-
+	lcdSendCommand(DISPLAYCONTROL | DISPLAYON | CURSOROFF | BLINKOFF);
 	lcdClear();
 	lcdHome();
 }

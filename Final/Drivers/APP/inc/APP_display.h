@@ -68,7 +68,7 @@ extern displayData_t currentData;
 /************************************
  * GLOBAL FUNCTION PROTOTYPES
  ************************************/
-void displayFSMInit();
+void displayInit();
 void displayFSM();
 
 #ifdef __cplusplus

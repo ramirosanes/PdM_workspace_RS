@@ -48,8 +48,9 @@ static void updateData()
  * GLOBAL FUNCTIONS
  ************************************/
 
-void displayFSMInit()
+void displayInit()
 {
+	lcdInit();
 	currentData.currentState = DISPLAY_DATA;
 	currentData.currentDateTime.dayOfMonth = 16;
 	currentData.currentDateTime.month = 11;
