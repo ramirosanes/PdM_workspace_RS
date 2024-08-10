@@ -1,14 +1,14 @@
 /**
  ********************************************************************************
- * @file    APP_display.h
+ * @file    APP_clock.h
  * @author  rami
- * @date    Aug 3, 2024
+ * @date    Aug 8, 2024
  * @brief   
  ********************************************************************************
  */
 
-#ifndef APP_INC_APP_DISPLAY_H_
-#define APP_INC_APP_DISPLAY_H_
+#ifndef APP_INC_APP_CLOCK_H_
+#define APP_INC_APP_CLOCK_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,39 +17,53 @@ extern "C" {
 /************************************
  * INCLUDES
  ************************************/
-#include "API_lcd.h"
+#include "main.h"
 #include "API_uart.h"
-#include "API_utils.h"
-
-#include "APP_clock.h"
+#include "API_rtc.h"
 /************************************
  * MACROS AND DEFINES
  ************************************/
-#define USERBUFFER_SIZE COLS
+
 /************************************
  * TYPEDEFS
  ************************************/
+typedef struct
+{
+	uint8_t seconds;
+	uint8_t minutes;
+	uint8_t hours;
+	uint8_t dayOfMonth;
+	uint8_t month;
+	uint16_t year;
+	uint8_t timeZoneHour;
+	uint16_t timeZoneMinute;
+}
+dateTime_t;
 typedef enum
 {
-	DISPLAY_INIT,
-	DISPLAY_DATA,
-	DISPLAY_CONFIG,
-	DISPLAY_SET_DATE,
-	DISPLAY_SET_TIME,
-	DISPLAY_RESET_COUNT,
-	DISPLAY_SET_CUSTOM_STRING_INPUT,
+	CLOCK_INIT,
+	UPDATE_SECONDS,
+	UPDATE_MINUTES,
+	UPDATE_HOURS,
+	UPDATE_DATE,
 }
-displayState_t;
-
+clockState_t;
 /************************************
  * EXPORTED VARIABLES
  ************************************/
-extern uint8_t displayBuffer[ROWS][COLS];
 
 /************************************
  * GLOBAL FUNCTION PROTOTYPES
  ************************************/
-void displayFSM();
+void clockFSM ();
+
+uint8_t clockGetSeconds ();
+uint8_t clockGetMinutes ();
+uint8_t clockGetHours ();
+
+uint8_t clockGetDate ();
+uint8_t clockGetMonth ();
+uint16_t clockGetYear ();
 
 #ifdef __cplusplus
 }

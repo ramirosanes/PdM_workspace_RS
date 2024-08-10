@@ -35,10 +35,14 @@ extern "C" {
 /************************************
  * GLOBAL FUNCTION PROTOTYPES
  ************************************/
-bool_t uartInit ();
-bool_t uartDeInit ();
+void uartInit ();
+void uartDeInit ();
+
 void uartSendString (uint8_t* pstring);
 void uartSendStringSize (uint8_t* pstring, uint16_t size);
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
+
 #ifdef __cplusplus
 }
 #endif

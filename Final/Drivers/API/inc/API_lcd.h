@@ -18,6 +18,7 @@ extern "C" {
  * INCLUDES
  ************************************/
 #include "main.h"
+#include <stdio.h>
 /************************************
  * MACROS AND DEFINES
  ************************************/
@@ -50,8 +51,9 @@ void lcdPrintInt(int16_t num);
 void lcdPrintChar (uint8_t c);
 void lcdPrintString (uint8_t* str);
 
-void lcdPrintf(const uint8_t* format, uint8_t c, int16_t num, const uint8_t* str);
 void lcdPrintfCenteredString(uint8_t* str, uint8_t c, int16_t num, const uint8_t* string);
+void lcdPrintfTwoInts(const uint8_t* format, int16_t num1, int16_t num2);
+void lcdPrintfThreeInts(const uint8_t* format, int16_t num1, int16_t num2, int16_t num3);
 
 #ifdef __cplusplus
 }

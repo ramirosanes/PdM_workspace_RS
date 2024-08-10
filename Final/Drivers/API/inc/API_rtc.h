@@ -38,7 +38,6 @@ void rtcHalt();
 void rtcHaltnt();
 bool_t rtcIsHalted();
 
-uint8_t rtcGetDayOfWeek(void);
 uint8_t rtcGetDate(void);
 uint8_t rtcGetMonth(void);
 uint16_t rtcGetYear(void);
@@ -49,7 +48,6 @@ uint8_t rtcGetSecond(void);
 int8_t rtcGetTimeZoneHour(void);
 uint8_t rtcGetTimeZoneMin(void);
 
-void rtcSetDayOfWeek(uint8_t dow);
 void rtcSetDate(uint8_t date);
 void rtcSetMonth(uint8_t month);
 void rtcSetYear(uint16_t year);

@@ -10,6 +10,8 @@
 /************************************
  * INCLUDES
  ************************************/
+#include <stdio.h>
+#include <string.h>
 #include "API_lcd.h"
 #include "API_uart.h"
 /************************************
@@ -67,11 +69,11 @@
 /************************************
  * STATIC VARIABLES
  ************************************/
-
+static I2C_HandleTypeDef hi2c1;
 /************************************
  * GLOBAL VARIABLES
  ************************************/
-I2C_HandleTypeDef hi2c1;
+
 /************************************
  * STATIC FUNCTION PROTOTYPES
  ************************************/
@@ -79,52 +81,6 @@ I2C_HandleTypeDef hi2c1;
 /************************************
  * STATIC FUNCTIONS
  ************************************/
-static void lcdSendCommand (uint8_t cmd)
-{
-	uint8_t highNibble, lowNibble;
-	uint8_t txData[4];
-
-	highNibble = (cmd & 0xF0) | BL_BIT;
-	lowNibble = ((cmd<<4) & 0xF0) | BL_BIT;
-
-	txData[0] = highNibble | EN_BIT;
-	txData[1] = highNibble;
-	txData[2] = lowNibble | EN_BIT;
-	txData[3] = lowNibble;
-
-	for (uint8_t i = 0; i<sizeof(txData); i++)
-	{
-		if ((HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (txData+i), 1, HAL_MAX_DELAY)) != HAL_OK)
-		{
-			uartSendString((uint8_t)"tx de lcd broken");
-		}
-	}
-	HAL_Delay(5);
-}
-
-static void lcdSendData (uint8_t data)
-{
-	uint8_t highNibble, lowNibble;
-	uint8_t txData[4];
-
-	highNibble = (data & 0xF0) | BL_BIT | RS_BIT;
-	lowNibble = ((data<<4) & 0xF0) | BL_BIT | RS_BIT;
-
-	txData[0] = highNibble | EN_BIT;
-	txData[1] = highNibble;
-	txData[2] = lowNibble | EN_BIT;
-	txData[3] = lowNibble;
-
-	for (uint8_t i = 0; i<sizeof(txData); i++)
-	{
-		if ((HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (txData+i), 1, HAL_MAX_DELAY)) != HAL_OK)
-		{
-			uartSendString((uint8_t)"tx de lcd broken");
-		}
-	}
-	HAL_Delay(5);
-}
-
 static void MX_I2C1_Init(void)
 {
   hi2c1.Instance = I2C1;
@@ -151,6 +107,77 @@ static void MX_I2C1_Init(void)
   {
     Error_Handler();
   }
+}
+static void lcdSendCommand (uint8_t cmd)
+{
+	uint8_t highNibble, lowNibble;
+	uint8_t txData[4];
+
+	highNibble = (cmd & 0xF0) | BL_BIT;
+	lowNibble = ((cmd<<4) & 0xF0) | BL_BIT;
+
+	txData[0] = highNibble | EN_BIT;
+	txData[1] = highNibble;
+	txData[2] = lowNibble | EN_BIT;
+	txData[3] = lowNibble;
+
+	for (uint8_t i = 0; i<sizeof(txData); i++)
+	{
+		if ((HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (txData+i), 1, HAL_MAX_DELAY)) != HAL_OK)
+		{
+			uartSendString((uint8_t)"tx de lcd broken");
+		}
+	}
+	HAL_Delay(5);
+}
+static void lcdSendData (uint8_t data)
+{
+	uint8_t highNibble, lowNibble;
+	uint8_t txData[4];
+
+	highNibble = (data & 0xF0) | BL_BIT | RS_BIT;
+	lowNibble = ((data<<4) & 0xF0) | BL_BIT | RS_BIT;
+
+	txData[0] = highNibble | EN_BIT;
+	txData[1] = highNibble;
+	txData[2] = lowNibble | EN_BIT;
+	txData[3] = lowNibble;
+
+	for (uint8_t i = 0; i<sizeof(txData); i++)
+	{
+		if ((HAL_I2C_Master_Transmit(&hi2c1, (LCD_ADDRESS<<1), (txData+i), 1, HAL_MAX_DELAY)) != HAL_OK)
+		{
+			uartSendString((uint8_t)"tx de lcd broken");
+		}
+	}
+	HAL_Delay(5);
+}
+static void lcdPrintf(const uint8_t* format, uint8_t c, int16_t num, const uint8_t* str)
+{
+    while (*format != '\0')
+    {
+        if (*format == '%')
+        {
+            format++;
+            switch (*format)
+            {
+                case 'c':
+                    lcdPrintChar(c);
+                    break;
+                case 'd':
+                    lcdPrintInt(num);
+                    break;
+                case 's':
+                    lcdPrintString((uint8_t*)str);
+                    break;
+            }
+        }
+        else
+        {
+            lcdPrintChar(*format);
+        }
+        format++;
+    }
 }
 
 /************************************
@@ -189,10 +216,11 @@ void lcdInit ()
 
 	lcdSendCommand(RETURNHOME);
 	lcdSendCommand(ENTRYMODESET | ENTRYLEFT | SHIFTDECREMENT);
-	lcdSendCommand(DISPLAYCONTROL | DISPLAYON | CURSOROFF | BLINKOFF);
+	lcdSendCommand(DISPLAYCONTROL | DISPLAYON | CURSORON | BLINKON);
 	lcdClear();
 	lcdHome();
 }
+
 void lcdClear ()
 {
 	lcdSendCommand(CLEARDISPLAY);
@@ -240,9 +268,10 @@ void lcdBlinkOff ()
 	lcdSendCommand(DISPLAYCONTROL | BLINKOFF);
 	HAL_Delay(5);
 }
+
 void lcdPrintInt(int16_t num)
 {
-    uint8_t str[3];  // Buffer for the converted string
+    uint8_t str[5];  // Buffer for the converted string
     uint8_t i = 0;
     bool_t isNegative = false;
 
@@ -284,33 +313,7 @@ void lcdPrintString (uint8_t* str)
 		lcdSendData(*str++);
 	}
 }
-void lcdPrintf(const uint8_t* format, uint8_t c, int16_t num, const uint8_t* str)
-{
-    while (*format != '\0')
-    {
-        if (*format == '%')
-        {
-            format++;
-            switch (*format)
-            {
-                case 'c':
-                    lcdPrintChar(c);
-                    break;
-                case 'd':
-                    lcdPrintInt(num);
-                    break;
-                case 's':
-                    lcdPrintString((uint8_t*)str);
-                    break;
-            }
-        }
-        else
-        {
-            lcdPrintChar(*format);
-        }
-        format++;
-    }
-}
+
 void lcdPrintfCenteredString(uint8_t* str, uint8_t c, int16_t num, const uint8_t* string)
 {
     if (str == NULL) {
@@ -338,8 +341,57 @@ void lcdPrintfCenteredString(uint8_t* str, uint8_t c, int16_t num, const uint8_t
         lcdPrintChar(' ');
     }
 }
-
-void lcdPrintfLine (uint8_t* str, uint8_t c, int16_t num, const uint8_t* string)
-{
-
+void lcdPrintfTwoInts(const uint8_t* format, int16_t num1, int16_t num2) {
+    uint8_t numArgsPrinted = 0;
+    while (*format != '\0') {
+        if (*format == '%') {
+            format++;
+            if (*format == 'd') {
+                switch (numArgsPrinted) {
+                    case 0:
+                        lcdPrintInt(num1);
+                        break;
+                    case 1:
+                        lcdPrintInt(num2);
+                        break;
+                }
+                numArgsPrinted++;
+            }
+        } else {
+            lcdPrintChar(*format);
+        }
+        format++;
+    }
 }
+void lcdPrintfThreeInts(const uint8_t* format, int16_t num1, int16_t num2, int16_t num3)
+{
+    uint8_t numArgsPrinted = 0;
+    while (*format != '\0')
+    {
+        if (*format == '%')
+        {
+            format++; // Move to the character after '%'
+            if (*format == 'd')
+            {
+                switch (numArgsPrinted)
+                {
+                    case 0:
+                        lcdPrintInt(num1);
+                        break;
+                    case 1:
+                        lcdPrintInt(num2);
+                        break;
+                    case 2:
+                        lcdPrintInt(num3);
+                        break;
+                }
+                numArgsPrinted++;
+            }
+        } else
+        {
+            lcdPrintChar(*format);
+        }
+        format++;
+    }
+}
+

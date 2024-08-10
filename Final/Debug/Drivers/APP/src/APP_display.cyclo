@@ -1,3 +1,3 @@
-../Drivers/APP/src/APP_display.c:43:13:updateData	1
-../Drivers/APP/src/APP_display.c:51:6:displayInit	3
-../Drivers/APP/src/APP_display.c:62:6:displayFSM	3
+../Drivers/APP/src/APP_display.c:41:13:inputFunction	20
+../Drivers/APP/src/APP_display.c:154:13:displayFunction	32
+../Drivers/APP/src/APP_display.c:348:6:displayFSM	8

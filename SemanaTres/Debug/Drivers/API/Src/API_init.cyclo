@@ -1,3 +1,0 @@
-../Drivers/API/Src/API_init.c:6:13:SystemClock_Config	4
-../Drivers/API/Src/API_init.c:54:13:Error_Handler	1
-../Drivers/API/Src/API_init.c:64:6:HW_Init	1

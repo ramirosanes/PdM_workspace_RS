@@ -1,6 +1,0 @@
-../Drivers/API/src/API_uart.c:41:13:MX_USART3_UART_Init	2
-../Drivers/API/src/API_uart.c:60:6:uartFSM	1
-../Drivers/API/src/API_uart.c:65:8:uartInit	1
-../Drivers/API/src/API_uart.c:72:8:uartDeInit	1
-../Drivers/API/src/API_uart.c:78:6:uartSendString	4
-../Drivers/API/src/API_uart.c:101:6:uartSendStringSize	3

@@ -9,6 +9,7 @@
 "./Drivers/API/src/API_rtc.o"
 "./Drivers/API/src/API_uart.o"
 "./Drivers/API/src/API_utils.o"
+"./Drivers/APP/src/APP_clock.o"
 "./Drivers/APP/src/APP_display.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o"

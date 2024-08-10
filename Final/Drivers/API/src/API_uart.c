@@ -11,6 +11,7 @@
  * INCLUDES
  ************************************/
 #include "API_uart.h"
+#include "API_utils.h"
 /************************************
  * EXTERN VARIABLES
  ************************************/
@@ -18,6 +19,7 @@
 /************************************
  * PRIVATE MACROS AND DEFINES
  ************************************/
+
 /************************************
  * PRIVATE TYPEDEFS
  ************************************/
@@ -25,12 +27,12 @@
 /************************************
  * STATIC VARIABLES
  ************************************/
-static UART_HandleTypeDef huart3;
+static uint8_t rxBuffer;
 /************************************
  * GLOBAL VARIABLES
  ************************************/
-
-
+circularBuffer_t uartUserBuffer;
+UART_HandleTypeDef huart3;
 /************************************
  * STATIC FUNCTION PROTOTYPES
  ************************************/
@@ -57,19 +59,17 @@ static void MX_USART3_UART_Init(void)
 /************************************
  * GLOBAL FUNCTIONS
  ************************************/
-bool_t uartInit ()
+void uartInit ()
 {
 	MX_USART3_UART_Init();
 	uartSendString(UART_CONFIG_STRING);
-	return true;
+	circularBufferInit(&uartUserBuffer);
+	HAL_UART_Receive_IT(&huart3, &rxBuffer, 1);
 }
-
-bool_t uartDeInit ()
+void uartDeInit ()
 {
 	HAL_UART_MspDeInit(&huart3);
-	return true;
 }
-
 void uartSendString (uint8_t* pstring)
 {
 	HAL_StatusTypeDef uartStatus;
@@ -92,7 +92,6 @@ void uartSendString (uint8_t* pstring)
 		Error_Handler();
 	}
 }
-
 void uartSendStringSize (uint8_t* pstring, uint16_t size)
 {
 	HAL_StatusTypeDef uartStatus;
@@ -108,4 +107,19 @@ void uartSendStringSize (uint8_t* pstring, uint16_t size)
 		Error_Handler();
 	}
 }
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART3)
+    {
+    	if ((rxBuffer >= ' ') && (rxBuffer <= 126)) //Valid ascii character
+    	{
+        	//Write into userBuffer
+            circularBufferWriteByte(&uartUserBuffer, rxBuffer);
+    	}
+
+        HAL_UART_Receive_IT(&huart3, &rxBuffer, 1);
+    }
+}
+
 

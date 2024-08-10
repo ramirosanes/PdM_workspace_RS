@@ -67,39 +67,6 @@ static rtc_t rtcHandle =
 /************************************
  * STATIC FUNCTIONS
  ************************************/
-static void rtcSetRegByte (uint8_t regAddr, uint8_t val)
-{
-	uint8_t bytes[2]= {regAddr, val};
-	if (HAL_I2C_Master_Transmit(rtcHandle.hi2c, (rtcHandle.address<<1), bytes, 2, 100)!= HAL_OK)
-		{
-		uartSendString((uint8_t*)"error tx RTC\n\r");
-		}
-}
-
-static uint8_t rtcGetRegByte (uint8_t regAddr)
-{
-	uint8_t val;
-	if (HAL_I2C_Master_Transmit(rtcHandle.hi2c, (rtcHandle.address<<1), &regAddr, 1, RTC_TIMEOUT)!= HAL_OK)
-		{
-		uartSendString((uint8_t*)"error tx RTC \n\r");
-		}
-	if (HAL_I2C_Master_Receive(rtcHandle.hi2c, (rtcHandle.address<<1), &val, 1, RTC_TIMEOUT)!= HAL_OK)
-		{
-		uartSendString((uint8_t*)"error rx RTC \n\r");
-		}
-	return val;
-}
-
-static uint8_t decodeBCD (uint8_t bcd)
-{
-	return (((bcd & 0xf0) >> 4) * 10) + (bcd & 0x0f);
-}
-
-static uint8_t encodeBCD (uint8_t dec)
-{
-	return (dec % 10 + ((dec / 10) << 4));
-}
-
 static void MX_I2C2_Init(void)
 {
 
@@ -142,6 +109,35 @@ static void MX_I2C2_Init(void)
   /* USER CODE END I2C2_Init 2 */
 
 }
+static void rtcSetRegByte (uint8_t regAddr, uint8_t val)
+{
+	uint8_t bytes[2]= {regAddr, val};
+	if (HAL_I2C_Master_Transmit(rtcHandle.hi2c, (rtcHandle.address<<1), bytes, 2, 100)!= HAL_OK)
+		{
+		uartSendString((uint8_t*)"error tx RTC\n\r");
+		}
+}
+static uint8_t rtcGetRegByte (uint8_t regAddr)
+{
+	uint8_t val;
+	if (HAL_I2C_Master_Transmit(rtcHandle.hi2c, (rtcHandle.address<<1), &regAddr, 1, RTC_TIMEOUT)!= HAL_OK)
+		{
+		uartSendString((uint8_t*)"error tx RTC \n\r");
+		}
+	if (HAL_I2C_Master_Receive(rtcHandle.hi2c, (rtcHandle.address<<1), &val, 1, RTC_TIMEOUT)!= HAL_OK)
+		{
+		uartSendString((uint8_t*)"error rx RTC \n\r");
+		}
+	return val;
+}
+static uint8_t decodeBCD (uint8_t bcd)
+{
+	return (((bcd & 0xf0) >> 4) * 10) + (bcd & 0x0f);
+}
+static uint8_t encodeBCD (uint8_t dec)
+{
+	return (dec % 10 + ((dec / 10) << 4));
+}
 /************************************
  * GLOBAL FUNCTIONS
  ************************************/
@@ -149,6 +145,7 @@ void rtcInit()
 {
 	MX_I2C2_Init();
 	rtcHaltnt();
+	rtcSetTimeZone(4,0); //Montevideo
 }
 void rtcHalt()
 {
@@ -163,10 +160,6 @@ void rtcHaltnt()
 bool_t rtcIsHalted()
 {
 	return (bool_t)(rtcGetRegByte(RTC_SECOND)&0x80)>>7;
-}
-uint8_t rtcGetDayOfWeek(void)
-{
-	return decodeBCD(rtcGetRegByte(RTC_DOW));
 }
 uint8_t rtcGetDate(void)
 {
@@ -200,14 +193,6 @@ int8_t rtcGetTimeZoneHour(void)
 uint8_t rtcGetTimeZoneMin(void)
 {
 	return decodeBCD(rtcGetRegByte(RTC_UTC_MIN));
-}
-void rtcSetDayOfWeek(uint8_t dow)
-{
-	if ((dow>6) | (dow<0))
-	{
-		Error_Handler();
-	}
-	rtcSetRegByte(RTC_DOW, encodeBCD(dow));
 }
 void rtcSetDate(uint8_t date)
 {

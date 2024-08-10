@@ -147,7 +147,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
-
 static void delayRead (delay_t* delay)
 {
 	delay->elapsedTime = HAL_GetTick() - delay->startTime;
@@ -187,7 +186,6 @@ void buttonFSM()
 		{
 			userButton.State = BUTTON_RISING;
 			delayStart(&userButton.debounceDelay);
-			lcdPrintString("holi");
 		}
 		break;
 
@@ -197,6 +195,8 @@ void buttonFSM()
 		{
 			if (HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin))
 			{
+				userButton.lowFlankCount++;
+				uartSendString((uint8_t*)"downFlank");
 				userButton.State = BUTTON_DOWN;
 				break;
 			} else
@@ -213,7 +213,8 @@ void buttonFSM()
 		{
 			if (!HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin))
 			{
-				uartSendString((uint8_t*)"hola");
+				userButton.highFlankCount++;
+				uartSendString((uint8_t*)"upFlank");
 				userButton.State = BUTTON_UP;
 				break;
 			} else
@@ -231,6 +232,14 @@ void buttonFSM()
 bool_t readUserButton()
 {
 	return userButton.isPressed;
+}
+uint8_t getHighFlankCount ()
+{
+	return userButton.highFlankCount;
+}
+uint8_t getLowFlankCount ()
+{
+	return userButton.lowFlankCount;
 }
 /************************************
  * DELAY GLOBAL FUNCTIONS
@@ -261,4 +270,68 @@ bool_t delayIsRunning (delay_t* delay)
 {
 	delayRead(delay);
 	return delay->running;
+}
+/************************************
+ * BUFFER GLOBAL FUNCTIONS
+ ************************************/
+void circularBufferInit (circularBuffer_t *cb)
+{
+    cb->head = 0;
+    cb->tail = 0;
+    cb->count = 0;
+}
+bool_t circularBufferIsFull (circularBuffer_t *cb)
+{
+    return cb->count == CIRCULAR_BUFFER_SIZE;
+}
+bool_t circularBufferIsEmpty (circularBuffer_t *cb)
+{
+    return cb->count == 0;
+}
+bool_t circularBufferWriteByte (circularBuffer_t *cb, uint8_t data)
+{
+    if (circularBufferIsFull(cb))
+    {
+        return false;
+    }
+    cb->buffer[cb->head] = data;
+    cb->head = (cb->head + 1) % CIRCULAR_BUFFER_SIZE;
+    cb->count++;
+    return true;
+}
+bool_t circularBufferReadByte (circularBuffer_t *cb, uint8_t *data)
+{
+    if (circularBufferIsEmpty(cb))
+    {
+        return false;
+    }
+    *data = cb->buffer[cb->tail];
+    cb->tail = (cb->tail + 1) % CIRCULAR_BUFFER_SIZE;
+    cb->count--;
+    return true;
+}
+uint8_t circularBufferAvailableBytes (circularBuffer_t *cb)
+{
+    return cb->count;
+}
+
+bool_t circularBufferReadAllBytes (circularBuffer_t* or, uint8_t* ds)
+{
+	uint8_t index = 0;
+
+	if (circularBufferAvailableBytes(or) == 0)
+	{
+		return false;
+	}
+
+	while (index < circularBufferAvailableBytes(or))
+	{
+		if (!circularBufferReadByte(or, (ds+index)))
+		{
+			uartSendString((uint8_t)"ver bien esto");
+			return false;
+		}
+		index++;
+	}
+	return true;
 }

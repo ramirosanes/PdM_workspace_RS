@@ -5,12 +5,15 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Drivers/APP/src/APP_clock.c \
 ../Drivers/APP/src/APP_display.c 
 
 OBJS += \
+./Drivers/APP/src/APP_clock.o \
 ./Drivers/APP/src/APP_display.o 
 
 C_DEPS += \
+./Drivers/APP/src/APP_clock.d \
 ./Drivers/APP/src/APP_display.d 
 
 
@@ -21,7 +24,7 @@ Drivers/APP/src/%.o Drivers/APP/src/%.su Drivers/APP/src/%.cyclo: ../Drivers/APP
 clean: clean-Drivers-2f-APP-2f-src
 
 clean-Drivers-2f-APP-2f-src:
-	-$(RM) ./Drivers/APP/src/APP_display.cyclo ./Drivers/APP/src/APP_display.d ./Drivers/APP/src/APP_display.o ./Drivers/APP/src/APP_display.su
+	-$(RM) ./Drivers/APP/src/APP_clock.cyclo ./Drivers/APP/src/APP_clock.d ./Drivers/APP/src/APP_clock.o ./Drivers/APP/src/APP_clock.su ./Drivers/APP/src/APP_display.cyclo ./Drivers/APP/src/APP_display.d ./Drivers/APP/src/APP_display.o ./Drivers/APP/src/APP_display.su
 
 .PHONY: clean-Drivers-2f-APP-2f-src
 

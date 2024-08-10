@@ -24,7 +24,10 @@
 #include "API_uart.h"
 #include "API_lcd.h"
 #include "API_rtc.h"
+
+#include "APP_clock.h"
 #include "APP_display.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -34,9 +37,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-const uint8_t numero = 79;
-const uint8_t* mensaje = (uint8_t*)"69";
-
 
 /* USER CODE END PD */
 
@@ -47,6 +47,9 @@ const uint8_t* mensaje = (uint8_t*)"69";
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t displayBuffer[ROWS][COLS];
+uint8_t configBuffer[ROWS];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,7 +61,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-extern uint8_t displayBuffer[ROWS][COLS];
+
 /* USER CODE END 0 */
 
 /**
@@ -93,7 +96,7 @@ int main(void)
   uartInit();
   buttonInit();
   rtcInit();
-  displayInit();
+  lcdInit();
   /* USER CODE END 2 */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -103,7 +106,9 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  buttonFSM();
+	  clockFSM();
 	  displayFSM();
+
   }
   /* USER CODE END 3 */
 }

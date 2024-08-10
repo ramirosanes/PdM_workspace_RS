@@ -1,0 +1,7 @@
+../Drivers/APP/src/APP_clock.c:46:6:clockFSM	13
+../Drivers/APP/src/APP_clock.c:135:9:clockGetSeconds	1
+../Drivers/APP/src/APP_clock.c:140:9:clockGetMinutes	1
+../Drivers/APP/src/APP_clock.c:145:9:clockGetHours	1
+../Drivers/APP/src/APP_clock.c:150:9:clockGetDate	1
+../Drivers/APP/src/APP_clock.c:155:9:clockGetMonth	1
+../Drivers/APP/src/APP_clock.c:160:10:clockGetYear	1
