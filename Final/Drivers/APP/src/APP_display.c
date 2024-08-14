@@ -40,7 +40,7 @@ static displayState_t displayState = DISPLAY_INIT;
  ************************************/
 static void inputFunction (displayState_t state)
 {
-	static uint8_t* userBuffer[COLS];
+	static uint8_t userBuffer[COLS];
 	static uint8_t option;
 	static uint8_t day, month, seconds, minutes, hours;
 	static uint16_t year;
@@ -118,11 +118,11 @@ static void inputFunction (displayState_t state)
 		break;
 
 	case DISPLAY_SET_DATE:
-		if (circularBufferAvailableBytes(&uartUserBuffer)>=8)
+		if (circularBufferAvailableBytes(&uartUserBuffer)>=6)
 		{
 			if (circularBufferReadAllBytes(&uartUserBuffer, userBuffer))
 			{
-				if (sscanf(&userBuffer, "%2d%2d%4d", &day, &month, &year)<3)
+				if (sscanf(&userBuffer, "%2d%2d%2d", &day, &month, &year)<3)
 				{
 					day = 16;
 					month = 11;
@@ -131,6 +131,7 @@ static void inputFunction (displayState_t state)
 				rtcSetDate(day);
 				rtcSetMonth(month);
 				rtcSetYear(year);
+				clockReset();
 				lcdClear();
 				lcdHome();
 				displayState = DISPLAY_DATA;
@@ -140,7 +141,28 @@ static void inputFunction (displayState_t state)
 		break;
 
 	case DISPLAY_SET_TIME:
+		if (circularBufferAvailableBytes(&uartUserBuffer)>=6)
+		{
+			if (circularBufferReadAllBytes(&uartUserBuffer, userBuffer))
+			{
+				if (sscanf(&userBuffer, "%2d%2d%2d", &hours, &minutes, &seconds)<3)
+				{
+					hours = 16;
+					minutes = 11;
+					seconds = 05;
+				}
+				rtcSetHour(hours);
+				rtcSetMinute(minutes);
+				rtcSetSecond(seconds);
+				clockReset();
+				lcdClear();
+				lcdHome();
+				displayState = DISPLAY_DATA;
+			}
+
+		}
 		break;
+
 	case DISPLAY_RESET_COUNT:
 		break;
 	case DISPLAY_SET_CUSTOM_STRING_INPUT:
@@ -226,7 +248,7 @@ static void displayFunction (displayState_t state)
 		{
 		case 3:
 			lcdSetCursor(row, 0);
-			lcdPrintfCenteredString((uint8_t*)"ddmmyyy", ' ', 0, (uint8_t*)" ");
+			lcdPrintfCenteredString((uint8_t*)"ddmmyy", ' ', 0, (uint8_t*)" ");
 			row = (row+1)%ROWS;
 			break;
 		case 2:

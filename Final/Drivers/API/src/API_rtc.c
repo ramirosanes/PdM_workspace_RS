@@ -198,7 +198,7 @@ void rtcSetDate(uint8_t date)
 {
 	if ((date>31) | (date<1))
 	{
-		Error_Handler();
+		uartSendString((uint8_t*)"wrongDateValidation");
 	}
 	rtcSetRegByte(RTC_DATE, encodeBCD(date));
 }
@@ -206,15 +206,15 @@ void rtcSetMonth(uint8_t month)
 {
 	if ((month >12) | (month <1))
 	{
-		Error_Handler();
+		uartSendString((uint8_t*)"wrongMonthValidation");
 	}
 	rtcSetRegByte(RTC_MONTH, encodeBCD(month));
 }
 void rtcSetYear(uint16_t year)
 {
-	if ((year>2099) | (year<2000))
+	if ((year>99) | (year<0))
 	{
-		Error_Handler();
+		uartSendString((uint8_t*)"wrongYearValidation");
 	}
 	rtcSetRegByte(RTC_YEAR, encodeBCD(year));
 }
@@ -223,7 +223,7 @@ void rtcSetHour(uint8_t hour_24mode)
 {
 	if ((hour_24mode>23) | (hour_24mode<0))
 	{
-		Error_Handler();
+		uartSendString((uint8_t*)"wrongHourValidation");
 	}
 	rtcSetRegByte(RTC_HOUR, encodeBCD(hour_24mode));
 }
@@ -231,7 +231,7 @@ void rtcSetMinute(uint8_t minute)
 {
 	if ((minute>59) | (minute<0))
 	{
-		Error_Handler();
+		uartSendString((uint8_t*)"wrongMinuteValidation");
 	}
 	rtcSetRegByte(RTC_MINUTE, encodeBCD(minute));
 }
@@ -239,7 +239,7 @@ void rtcSetSecond(uint8_t second)
 {
 	if ((second>59) | (second<1))
 	{
-		Error_Handler();
+		uartSendString((uint8_t*)"wrongSecondsValidation");
 	}
 	rtcSetRegByte(RTC_SECOND, encodeBCD(second));
 }
@@ -247,11 +247,11 @@ void rtcSetTimeZone(int8_t hr, uint8_t min)
 {
 	if ((hr>12) | (hr<-12))
 	{
-		Error_Handler();
+		uartSendString((uint8_t*)"wrongTimeZoneValidation");
 	}
 	if ((min>59) | (min<0))
 	{
-		Error_Handler();
+		uartSendString((uint8_t*)"wrongTimeZoneValidation");
 	}
 	rtcSetRegByte(RTC_UTC_HR, encodeBCD(hr));
 	rtcSetRegByte(RTC_UTC_MIN, encodeBCD(min));

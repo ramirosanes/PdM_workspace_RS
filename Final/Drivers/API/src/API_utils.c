@@ -324,7 +324,7 @@ bool_t circularBufferReadAllBytes (circularBuffer_t* or, uint8_t* ds)
 		return false;
 	}
 
-	while (index < circularBufferAvailableBytes(or))
+	while (0 < circularBufferAvailableBytes(or))
 	{
 		if (!circularBufferReadByte(or, (ds+index)))
 		{

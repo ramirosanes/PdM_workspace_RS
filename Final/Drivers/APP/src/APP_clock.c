@@ -50,16 +50,14 @@ void clockFSM ()
 
 	case CLOCK_INIT:
 
-		static dateTime_t newDateTime =
-				{
-						.dayOfMonth = 15,
-						.month = 8,
-						.year = 2024,
-				};
+		static dateTime_t newDateTime;
 
 		newDateTime.seconds = rtcGetSecond();
 		newDateTime.minutes = rtcGetMinute();
 		newDateTime.hours = rtcGetHour();
+		newDateTime.dayOfMonth = rtcGetDate();
+		newDateTime.month = rtcGetMonth();
+		newDateTime.year = rtcGetYear();
 
 		lastDateTime = newDateTime;
 		state = UPDATE_SECONDS;
@@ -69,26 +67,21 @@ void clockFSM ()
 	case UPDATE_SECONDS:
 
 		newDateTime.seconds = rtcGetSecond();
-		if (newDateTime.seconds != lastDateTime.seconds)
+		if ((newDateTime.seconds != lastDateTime.seconds) | (newDateTime.seconds == 0))
 		{
 			lastDateTime.seconds = newDateTime.seconds;
-		}
-		if (newDateTime.seconds == 0)
-		{
 			state = UPDATE_MINUTES;
 		}
+
 		break;
 
 	case UPDATE_MINUTES:
 
 		newDateTime.minutes = rtcGetMinute();
-		if (newDateTime.minutes != lastDateTime.minutes)
+		state = UPDATE_SECONDS;
+		if ((newDateTime.minutes != lastDateTime.minutes) | (newDateTime.minutes == 0))
 		{
 			lastDateTime.minutes = newDateTime.minutes;
-			state = UPDATE_SECONDS;
-		}
-		if (newDateTime.minutes == 0)
-		{
 			state = UPDATE_HOURS;
 		}
 
@@ -97,16 +90,12 @@ void clockFSM ()
 	case UPDATE_HOURS:
 
 		newDateTime.hours = rtcGetHour();
-		if (newDateTime.hours != lastDateTime.hours)
+		state = UPDATE_SECONDS;
+		if ((newDateTime.hours != lastDateTime.hours) | (newDateTime.hours == 0))
 		{
 			lastDateTime.hours = newDateTime.hours;
-			state = UPDATE_SECONDS;
-		}
-		if (newDateTime.hours == 0)
-		{
 			state = UPDATE_DATE;
 		}
-
 
 		break;
 
@@ -115,6 +104,7 @@ void clockFSM ()
 		newDateTime.dayOfMonth = rtcGetDate();
 		newDateTime.month = rtcGetMonth();
 		newDateTime.year = rtcGetYear();
+		state = UPDATE_SECONDS;
 		if (newDateTime.dayOfMonth != lastDateTime.month)
 		{
 			lastDateTime.dayOfMonth = newDateTime.dayOfMonth;
@@ -130,6 +120,11 @@ void clockFSM ()
 		break;
 
 	}
+}
+
+void clockReset ()
+{
+	state = CLOCK_INIT;
 }
 
 uint8_t clockGetSeconds ()

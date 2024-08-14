@@ -57,6 +57,8 @@ clockState_t;
  ************************************/
 void clockFSM ();
 
+void clockReset ();
+
 uint8_t clockGetSeconds ();
 uint8_t clockGetMinutes ();
 uint8_t clockGetHours ();
